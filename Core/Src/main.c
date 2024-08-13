@@ -36,6 +36,7 @@
 #define thermistorNominalResist (100000)
 #define nominalTemp (298.15)
 #define beta (3950)
+#define shuntResist (300)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,7 +51,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint32_t rawAdc1Val1, dmaBuffer[2], rawAdc1Val2;
-float thermistorResist, volt1, temp;
+float thermistorResist, volt1, temp, current1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,6 +78,12 @@ float tempEstimation(float To, float B,  float Rt, float R0)
 	float T = 1/((log(Rt/R0)/B)+(1/To)); // Steinhart-Hart Equation
 	float Tc = T-273.15;
 	return Tc;
+}
+
+float currentEstimation(void)
+{
+	float i = adcVoltageConversion(rawAdc1Val2)/shuntResist;
+	return i ;
 }
 /* USER CODE END PFP */
 
