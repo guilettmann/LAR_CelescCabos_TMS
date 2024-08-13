@@ -73,11 +73,11 @@ float thermistorResistEstimation(float R)
 	return Rt;
 }
 
-float tempEstimation(float To, float B,  float Rt, float R0)
+float tempEstimation(float To, float B, float Rt, float R0)
 {
-	float T = 1/((log(Rt/R0)/B)+(1/To)); // Steinhart-Hart Equation
-	float Tc = T-273.15;
-	return Tc;
+    float T = 1 / ((log(Rt / R0) / B) + (1 / To)); // Steinhart-Hart Equation
+    float Tc = T - 273.15;
+    return Tc;
 }
 
 float currentEstimation(void)

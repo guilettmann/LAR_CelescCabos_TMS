@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000029  00000000  00000000  0000505c  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00009532  00000000  00000000  00005085  2**0
+ 12 .debug_info   00009536  00000000  00000000  00005085  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001c71  00000000  00000000  0000e5b7  2**0
+ 13 .debug_abbrev 00001c70  00000000  00000000  0000e5bb  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000870  00000000  00000000  00010228  2**3
+ 14 .debug_aranges 00000870  00000000  00000000  00010230  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 00000679  00000000  00000000  00010a98  2**0
+ 15 .debug_rnglists 00000679  00000000  00000000  00010aa0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00017579  00000000  00000000  00011111  2**0
+ 16 .debug_macro  00017579  00000000  00000000  00011119  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000ad20  00000000  00000000  0002868a  2**0
+ 17 .debug_line   0000ad20  00000000  00000000  00028692  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000871f8  00000000  00000000  000333aa  2**0
+ 18 .debug_str    000871f8  00000000  00000000  000333b2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  000ba5a2  2**0
+ 19 .comment      00000043  00000000  00000000  000ba5aa  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002540  00000000  00000000  000ba5e8  2**2
+ 20 .debug_frame  00002540  00000000  00000000  000ba5f0  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000007d  00000000  00000000  000bcb28  2**0
+ 21 .debug_line_str 0000007d  00000000  00000000  000bcb30  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1212,7 +1212,7 @@ float thermistorResistEstimation(float R)
 
 08000e40 <tempEstimation>:
 
-float tempEstimation(float To, float B,  float Rt, float R0)
+float tempEstimation(float To, float B, float Rt, float R0)
 {
  8000e40:	b5b0      	push	{r4, r5, r7, lr}
  8000e42:	b086      	sub	sp, #24
@@ -1221,7 +1221,7 @@ float tempEstimation(float To, float B,  float Rt, float R0)
  8000e48:	60b9      	str	r1, [r7, #8]
  8000e4a:	607a      	str	r2, [r7, #4]
  8000e4c:	603b      	str	r3, [r7, #0]
-	float T = 1/((log(Rt/R0)/B)+(1/To)); // Steinhart-Hart Equation
+    float T = 1 / ((log(Rt / R0) / B) + (1 / To)); // Steinhart-Hart Equation
  8000e4e:	6839      	ldr	r1, [r7, #0]
  8000e50:	6878      	ldr	r0, [r7, #4]
  8000e52:	f7ff feed 	bl	8000c30 <__aeabi_fdiv>
@@ -1269,7 +1269,7 @@ float tempEstimation(float To, float B,  float Rt, float R0)
  8000ebc:	f7ff fdb4 	bl	8000a28 <__aeabi_d2f>
  8000ec0:	4603      	mov	r3, r0
  8000ec2:	617b      	str	r3, [r7, #20]
-	float Tc = T-273.15;
+    float Tc = T - 273.15;
  8000ec4:	6978      	ldr	r0, [r7, #20]
  8000ec6:	f7ff faa7 	bl	8000418 <__aeabi_f2d>
  8000eca:	a309      	add	r3, pc, #36	@ (adr r3, 8000ef0 <tempEstimation+0xb0>)
@@ -1282,7 +1282,7 @@ float tempEstimation(float To, float B,  float Rt, float R0)
  8000edc:	f7ff fda4 	bl	8000a28 <__aeabi_d2f>
  8000ee0:	4603      	mov	r3, r0
  8000ee2:	613b      	str	r3, [r7, #16]
-	return Tc;
+    return Tc;
  8000ee4:	693b      	ldr	r3, [r7, #16]
 }
  8000ee6:	4618      	mov	r0, r3
