@@ -96,6 +96,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	volt1 = adcVoltageConversion(UINT12_MAX);
 	thermistorResist = thermistorResistEstimation(upperResist);
 	temp = tempEstimation(nominalTemp, beta, thermistorResist, thermistorNominalResist);
+	current1 = currentEstimation();
 }
 /* USER CODE END 0 */
 
