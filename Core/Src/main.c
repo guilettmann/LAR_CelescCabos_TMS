@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
+  **************************
   * @file           : main.c
   * @brief          : Main program body
-  ******************************************************************************
+  **************************
   * @attention
   *
   * Copyright (c) 2024 STMicroelectronics.
@@ -13,7 +13,7 @@
   * in the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
   *
-  ******************************************************************************
+  **************************
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
@@ -36,6 +36,7 @@
 #define thermistorNominalResist (100000)
 #define nominalTemp (298.15)
 #define beta (3950)
+#define meanBufferSize (5)
 #define shuntResist (300)
 /* USER CODE END PD */
 
@@ -47,11 +48,13 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
+
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint32_t rawAdc1Val1, dmaBuffer[2], rawAdc1Val2;
-float thermistorResist, volt1, temp, current1;
+float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean, current;
+int index = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -61,29 +64,40 @@ static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
-float adcVoltageConversion(uint32_t adcVal)
+float adcVoltageConversion(uint32_t adc_value)
 {
-	float voltage = (vcc*adcVal)/UINT12_MAX;
-	return voltage;
+	float V = (vcc*adc_value)/UINT12_MAX;
+	return V;
 }
 
 float thermistorResistEstimation(float R)
 {
-	float Rt = (adcVoltageConversion(rawAdc1Val1)*R)/(vcc - adcVoltageConversion(rawAdc1Val1));
+	float Rt = (adcVoltageConversion(rawAdc1Val1)*R)/(vcc-adcVoltageConversion(rawAdc1Val1));
 	return Rt;
 }
 
-float tempEstimation(float To, float B, float Rt, float R0)
+float tempEstimation(float To, float B,  float Rt, float R0)
 {
-    float T = 1 / ((log(Rt / R0) / B) + (1 / To)); // Steinhart-Hart Equation
-    float Tc = T - 273.15;
-    return Tc;
+	float T = 1/((log(Rt/R0)/B)+(1/To));
+	float Tc = T-273.15;
+	return Tc;
 }
 
 float currentEstimation(void)
 {
-	float i = adcVoltageConversion(rawAdc1Val2)/shuntResist;
-	return i ;
+	float i = vcc/shuntResist;
+	return i;
+}
+
+float mean (float *buffer, int size)
+{
+	float count = 0;
+	for(int i = 0; i<size; i++)
+	{
+		count += buffer[i];
+	}
+	float mean = count/size;
+	return mean;
 }
 /* USER CODE END PFP */
 
@@ -91,12 +105,17 @@ float currentEstimation(void)
 /* USER CODE BEGIN 0 */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+
 	rawAdc1Val1 = dmaBuffer[0];
 	rawAdc1Val2 = dmaBuffer[1];
-	volt1 = adcVoltageConversion(UINT12_MAX);
+	rawVoltage = adcVoltageConversion(rawAdc1Val1);
 	thermistorResist = thermistorResistEstimation(upperResist);
-	temp = tempEstimation(nominalTemp, beta, thermistorResist, thermistorNominalResist);
-	current1 = currentEstimation();
+	current = currentEstimation();
+	rawTemp = tempEstimation(nominalTemp, beta, thermistorResist, thermistorNominalResist);
+	tempBuffer [index%meanBufferSize] = rawTemp;
+	tempMean = mean(tempBuffer, meanBufferSize);
+	index++;
+
 }
 /* USER CODE END 0 */
 
@@ -133,8 +152,9 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start_IT(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1, dmaBuffer, 2);
+  /* USER CODE BEGIN Init */
+    HAL_ADC_Start_IT(&hadc1);
+    HAL_ADC_Start_DMA(&hadc1, dmaBuffer, 2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
