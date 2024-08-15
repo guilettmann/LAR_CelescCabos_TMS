@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <math.h>
@@ -50,11 +51,14 @@ ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_rx;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
+uint8_t txData[1];
 uint32_t rawAdc1Val1, dmaBuffer[2], rawAdc1Val2;
 float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean, current;
-int index = 0;
+int indx = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,9 +116,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	thermistorResist = thermistorResistEstimation(upperResist);
 	current = currentEstimation();
 	rawTemp = tempEstimation(nominalTemp, beta, thermistorResist, thermistorNominalResist);
-	tempBuffer [index%meanBufferSize] = rawTemp;
+	tempBuffer [indx%meanBufferSize] = rawTemp;
 	tempMean = mean(tempBuffer, meanBufferSize);
-	index++;
+	txData[0] = tempMean;
+	indx++;
 
 }
 /* USER CODE END 0 */
@@ -155,6 +160,7 @@ int main(void)
   /* USER CODE BEGIN Init */
     HAL_ADC_Start_IT(&hadc1);
     HAL_ADC_Start_DMA(&hadc1, dmaBuffer, 2);
+    HAL_UART_Transmit_DMA(&huart2, txData, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -316,6 +322,12 @@ static void MX_DMA_Init(void)
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+  /* DMA1_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
+  /* DMA1_Channel7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
 }
 
