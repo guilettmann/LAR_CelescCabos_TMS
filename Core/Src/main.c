@@ -39,6 +39,8 @@
 #define beta (3950)
 #define meanBufferSize (5)
 #define shuntResist (300)
+#define batMaxVoltage (12.6)
+#define batMinVoltage (7.5)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -57,7 +59,7 @@ DMA_HandleTypeDef hdma_usart2_tx;
 /* USER CODE BEGIN PV */
 uint8_t txData[1];
 uint32_t rawAdc1Val1, dmaBuffer[2], rawAdc1Val2;
-float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean, current;
+float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean, rawBatVoltage, batVoltageBuffer[meanBufferSize], batVoltage;
 int indx = 0;
 /* USER CODE END PV */
 
@@ -68,15 +70,15 @@ static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
-float adcVoltageConversion(uint32_t adc_value)
+float adcVoltageConversion(float volt, uint32_t adc_value)
 {
-	float V = (vcc*adc_value)/UINT12_MAX;
+	float V = (volt*adc_value)/UINT12_MAX;
 	return V;
 }
 
 float thermistorResistEstimation(float R)
 {
-	float Rt = (adcVoltageConversion(rawAdc1Val1)*R)/(vcc-adcVoltageConversion(rawAdc1Val1));
+	float Rt = (adcVoltageConversion(vcc, rawAdc1Val1)*R)/(vcc-adcVoltageConversion(vcc, rawAdc1Val1));
 	return Rt;
 }
 
@@ -85,12 +87,6 @@ float tempEstimation(float To, float B,  float Rt, float R0)
 	float T = 1/((log(Rt/R0)/B)+(1/To));
 	float Tc = T-273.15;
 	return Tc;
-}
-
-float currentEstimation(void)
-{
-	float i = vcc/shuntResist;
-	return i;
 }
 
 float mean (float *buffer, int size)
@@ -112,11 +108,13 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 
 	rawAdc1Val1 = dmaBuffer[0];
 	rawAdc1Val2 = dmaBuffer[1];
-	rawVoltage = adcVoltageConversion(rawAdc1Val1);
+	rawVoltage = adcVoltageConversion(vcc, rawAdc1Val1);
+	rawBatVoltage = adcVoltageConversion(batMaxVoltage, rawAdc1Val2);
 	thermistorResist = thermistorResistEstimation(upperResist);
-	current = currentEstimation();
 	rawTemp = tempEstimation(nominalTemp, beta, thermistorResist, thermistorNominalResist);
 	tempBuffer [indx%meanBufferSize] = rawTemp;
+	batVoltageBuffer [indx%meanBufferSize] = rawBatVoltage;
+	batVoltage = mean(batVoltageBuffer, meanBufferSize);
 	tempMean = mean(tempBuffer, meanBufferSize);
 	txData[0] = tempMean;
 	indx++;
@@ -170,6 +168,15 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if (batVoltage==7.5 | tempMean > 50)
+	  {
+		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, SET);
+	  }
+	  else
+	  {
+		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, RESET);
+	  }
+	  HAL_Delay(300);
   }
   /* USER CODE END 3 */
 }
@@ -351,6 +358,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
@@ -363,6 +373,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PC8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
