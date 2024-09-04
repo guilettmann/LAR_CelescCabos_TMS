@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ../Core/Src/main.c:70:7:adcVoltageConversion	24	static
 ../Core/Src/main.c:76:7:thermistorResistEstimation	32	static
 ../Core/Src/main.c:82:7:tempEstimation	40	static
@@ -10,3 +11,5 @@
 ../Core/Src/main.c:307:13:MX_DMA_Init	16	static
 ../Core/Src/main.c:331:13:MX_GPIO_Init	40	static
 ../Core/Src/main.c:375:6:Error_Handler	4	static,ignoring_inline_asm
+=======
+>>>>>>> e686dbdd255385e86982afd6e80b5adba5c45dac
