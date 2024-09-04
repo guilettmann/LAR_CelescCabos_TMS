@@ -168,16 +168,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if (batVoltage==7.5 | tempMean > 50)
-	  {
-		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, SET);
-	  }
-	  else
-	  {
-		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, RESET);
-	  }
-	  HAL_Delay(300);
-  }
+//	  if (batVoltage==7.5 || tempMean > 50)
+//	  {
+//		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, RESET);
+//	  }
+//	  else
+//	  {
+//		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, SET);
+//	  }
+//	  HAL_Delay(300);
+//  }
   /* USER CODE END 3 */
 }
 
