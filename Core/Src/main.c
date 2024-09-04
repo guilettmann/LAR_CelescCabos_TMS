@@ -38,12 +38,8 @@
 #define nominalTemp (298.15)
 #define beta (3950)
 #define meanBufferSize (5)
-<<<<<<< HEAD
-=======
-#define shuntResist (300)
 #define batMaxVoltage (12.6)
 #define batMinVoltage (7.5)
->>>>>>> e686dbdd255385e86982afd6e80b5adba5c45dac
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,11 +58,7 @@ DMA_HandleTypeDef hdma_usart2_tx;
 /* USER CODE BEGIN PV */
 uint8_t txData[1];
 uint32_t rawAdc1Val1, dmaBuffer[2], rawAdc1Val2;
-<<<<<<< HEAD
-float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean;
-=======
 float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean, rawBatVoltage, batVoltageBuffer[meanBufferSize], batVoltage;
->>>>>>> e686dbdd255385e86982afd6e80b5adba5c45dac
 int indx = 0;
 /* USER CODE END PV */
 
@@ -175,16 +167,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//	  if (batVoltage==7.5 || tempMean > 50)
-//	  {
-//		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, RESET);
-//	  }
-//	  else
-//	  {
-//		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, SET);
-//	  }
-//	  HAL_Delay(300);
-//  }
+	  if (batVoltage==7.5 || tempMean > 50)
+	  {
+		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, SET);
+	  }
+	  else
+	  {
+		  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, RESET);
+	  }
+	  HAL_Delay(300);
+  }
   /* USER CODE END 3 */
 }
 

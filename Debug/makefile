@@ -60,8 +60,8 @@ all: main-build
 main-build: LAR_CabecaDeSerie_TMS.elf secondary-outputs
 
 # Tool invocations
-LAR_CabecaDeSerie_TMS.elf LAR_CabecaDeSerie_TMS.map: $(OBJS) $(USER_OBJS) C:\Users\laruf\OneDrive\Documentos\LAR_CabecaDeSerie_TMS\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "LAR_CabecaDeSerie_TMS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\laruf\OneDrive\Documentos\LAR_CabecaDeSerie_TMS\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LAR_CabecaDeSerie_TMS.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+LAR_CabecaDeSerie_TMS.elf LAR_CabecaDeSerie_TMS.map: $(OBJS) $(USER_OBJS) C:\Users\guilh\Documents\LAR_CabecaDeSerie_TMS\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "LAR_CabecaDeSerie_TMS.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\guilh\Documents\LAR_CabecaDeSerie_TMS\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="LAR_CabecaDeSerie_TMS.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
