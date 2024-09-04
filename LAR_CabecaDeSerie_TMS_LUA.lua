@@ -30,20 +30,17 @@ end
 gpio:pinMode(51,1) -- set AUX 2 to output, gpio:pinMode(51,0) would be input
 
 function update()
-  gcs:send_text(0, string.format("voltage: %0.2f, PWM: %i, input: ", analog_in:voltage_average(), pwm_in:get_pwm_us()) .. tostring(gpio:read(51)))
-
-  -- analog_in:voltage_average() the average voltage since the last call
+  -- gcs:send_text(0, string.format("voltage: %0.2f, PWM: %i, input: ", analog_in:voltage_average(), pwm_in:get_pwm_us()) .. tostring(gpio:read(51)))
+  local voltage = analog_in:voltage_average() -- the average voltage since the last call
+  local thermistorResist = ((voltage*100000)/(3.3-voltage))
+  local temp = 1/((math.log(thermistorResist/10000)/3950)+(1/298.15))
+  if (temp>50) then
+    disarm()
+  end
   -- analog_in:voltage_latest() the latest voltage reading
   -- analog_in:voltage_average_ratiometric() the average ratiometric voltage (relative to the board 5v)
 
-  -- pwm_in:get_pwm_us() the latest pwm value in us
-  -- pwm_in:get_pwm_avg_us() the average pwm value in us since the last call
 
-  -- gpio:read(pin)
-  -- gpio:write(pin, state)
-  -- gpio:toggle(pin)
-
-  gpio:toggle(51)
 
   return update, 1000
 end
