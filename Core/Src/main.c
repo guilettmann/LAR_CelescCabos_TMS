@@ -38,7 +38,6 @@
 #define nominalTemp (298.15)
 #define beta (3950)
 #define meanBufferSize (5)
-#define shuntResist (300)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -57,7 +56,7 @@ DMA_HandleTypeDef hdma_usart2_tx;
 /* USER CODE BEGIN PV */
 uint8_t txData[1];
 uint32_t rawAdc1Val1, dmaBuffer[2], rawAdc1Val2;
-float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean, current;
+float thermistorResist, rawVoltage, rawTemp, tempBuffer[meanBufferSize], tempMean;
 int indx = 0;
 /* USER CODE END PV */
 
@@ -87,12 +86,6 @@ float tempEstimation(float To, float B,  float Rt, float R0)
 	return Tc;
 }
 
-float currentEstimation(void)
-{
-	float i = vcc/shuntResist;
-	return i;
-}
-
 float mean (float *buffer, int size)
 {
 	float count = 0;
@@ -114,7 +107,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	rawAdc1Val2 = dmaBuffer[1];
 	rawVoltage = adcVoltageConversion(rawAdc1Val1);
 	thermistorResist = thermistorResistEstimation(upperResist);
-	current = currentEstimation();
 	rawTemp = tempEstimation(nominalTemp, beta, thermistorResist, thermistorNominalResist);
 	tempBuffer [indx%meanBufferSize] = rawTemp;
 	tempMean = mean(tempBuffer, meanBufferSize);
